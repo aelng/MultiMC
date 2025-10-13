@@ -1,0 +1,16 @@
+{
+  "name": "mcchat-typescript",
+  "version": "1.0.0",
+  "description": "Multi-instance minecraft chats",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev:watch",
+    "client": "cd client && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "mineflayer": "^4.33.0"
+  }
+}
