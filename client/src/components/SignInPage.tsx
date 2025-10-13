@@ -39,17 +39,23 @@ export default function SignInPage({ onSignIn }: SignInPageProps): React.ReactEl
   }
 
   return (
-    <div className="signin-container">
-      <h1>Chat App</h1>
-      <form onSubmit={handleSubmit} className="signin-form">
+    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
+      <h1 className="text-5xl md:text-6xl font-bold text-blue-500 mb-8">Chat App</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md px-4">
         <input 
           type="text" 
           placeholder="Enter your IGN"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           autoFocus
+          className="p-4 text-xl bg-gray-700 text-white rounded-lg border-none placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button type="submit">Sign In</button>
+        <button 
+          type="submit"
+          className="p-4 text-xl bg-blue-600 text-white rounded-lg border-none cursor-pointer hover:bg-blue-700 transition-colors"
+        >
+          Sign In
+        </button>
       </form>
     </div>
   )

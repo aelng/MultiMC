@@ -209,73 +209,81 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
   const activeBot = botInstances.find(bot => bot.id === activeBotId)
 
   return (
-    <div className="chat-container" style={{ display: 'flex', height: '100vh' }}>
-
-      <div className="sidebar" style={{ width: '200px', borderRight: '1px solid #ccc', padding: '10px' }}>
-        <h3>Servers</h3>
+    <div className="flex h-screen max-w-6xl mx-auto">
+      {/* Sidebar */}
+      <div className="w-56 border-r border-gray-600 p-3 bg-gray-900">
+        <h3 className="text-xl font-semibold mb-4 text-gray-200">Servers</h3>
         {botInstances.map(bot => (
           <div
             key={bot.id}
             onClick={() => setActiveBotId(bot.id)}
-            style={{
-              padding: '10px',
-              margin: '5px 0',
-              backgroundColor: activeBotId === bot.id ? '#007bff' : '#f0f0f0',
-              color: activeBotId === bot.id ? 'white' : 'black',
-              cursor: 'pointer',
-              borderRadius: '5px',
-              wordBreak: 'break-word'
-            }}
+            className={`p-3 my-2 cursor-pointer rounded-lg break-words transition-colors ${
+              activeBotId === bot.id 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+            }`}
           >
             {bot.host}
           </div>
         ))}
         
-        <form onSubmit={addServer} style={{ marginTop: '10px' }}>
+        <form onSubmit={addServer} className="mt-4">
           <input 
             type="text" 
             placeholder="Server IP"
             value={newServerIp}
             onChange={(e) => setNewServerIp(e.target.value)}
             disabled={isAddingServer}
-            style={{ width: '140px', padding: '5px' }}
+            className="w-full p-2 bg-gray-700 text-white rounded-lg border-none placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           />
           <button 
             type="submit" 
             disabled={isAddingServer}
-            style={{ marginTop: '5px', width: '100%' }}
+            className="mt-2 w-full p-2 bg-blue-600 text-white rounded-lg border-none cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isAddingServer ? '...' : '+'}
           </button>
         </form>
       </div>
 
-
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
         {activeBot ? (
           <>
-            <div className="chat-header">
-              <h2>Chat - {username} @ {activeBot.host}</h2>
+            <div className="text-center p-4 border-b-2 border-gray-600">
+              <h2 className="text-2xl font-semibold text-blue-500">
+                Chat - {username} @ {activeBot.host}
+              </h2>
             </div>
-            <ul className="messages" style={{ flex: 1, overflowY: 'auto' }}>
+            <ul className="flex-1 overflow-y-auto p-4 bg-gray-700 rounded-lg m-4 min-h-[400px] max-h-[500px] list-none">
               {activeBot.messages.map((msg: string, index: number) => (
-                <li key={index} dangerouslySetInnerHTML={{ __html: msg }} />
+                <li 
+                  key={index} 
+                  dangerouslySetInnerHTML={{ __html: msg }}
+                  className="mb-2 p-2 bg-gray-600 rounded"
+                />
               ))}
             </ul>
-            <form onSubmit={sendMessage} className="message-form">
+            <form onSubmit={sendMessage} className="flex gap-1 mt-auto p-4">
               <input 
                 ref={msgInputRef}
                 type="text" 
                 placeholder="Your message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                className="flex-1 p-3 bg-gray-700 text-white rounded-lg border-none placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <button type="submit">Send</button>
+              <button 
+                type="submit"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg border-none cursor-pointer hover:bg-blue-700 transition-colors"
+              >
+                Send
+              </button>
             </form>
           </>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            <p>Add a server to start chatting</p>
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-400 text-xl">Add a server to start chatting</p>
           </div>
         )}
       </div>

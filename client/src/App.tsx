@@ -11,9 +11,8 @@ function App(): React.ReactElement {
   }
 
   return (
-    <div className="app">
+    <div className="min-h-screen bg-gray-800 text-white p-4">
       {currentUser ? <ChatPage username={currentUser}/> : <SignInPage onSignIn={handleSignIn} />}
-      
     </div>
   )
 }
