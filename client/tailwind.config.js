@@ -9,6 +9,10 @@ export default {
       fontSize: {
         'base': '1.5rem',
       },
+      fontFamily: {
+        'minecraft': ['Minecraft', 'monospace'],
+        'sans': ['Minecraft', 'system-ui', 'sans-serif'],
+      },
     },
   },
   plugins: [],

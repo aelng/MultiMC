@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Minecraft Font */
+@font-face {
+  font-family: 'Minecraft';
+  src: url('./assets/fonts/Minecraft2.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* Minimal scrollbar styling */
 .minimal-scrollbar::-webkit-scrollbar {
   width: 6px;
