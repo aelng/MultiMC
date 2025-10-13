@@ -8,12 +8,34 @@ interface ChatPageProps {
 interface BotInstance {
   id: string
   host: string
-  messages: string[]
+  messages: MessagePart[][]
 }
 
 interface BotMessage {
   botId: string
   message: any
+}
+
+interface MessagePart {
+  text: string
+  color?: string
+  bold?: boolean
+  italic?: boolean
+  underlined?: boolean
+  strikethrough?: boolean
+}
+
+function MessagePart({ text, color, bold, italic, underlined, strikethrough }: MessagePart): React.ReactElement {
+  const style: React.CSSProperties = {
+    color: color || '#FFFFFF',
+    fontWeight: bold ? 'bold' : 'normal',
+    fontStyle: italic ? 'italic' : 'normal',
+    textDecoration: underlined && strikethrough ? 'underline line-through' : 
+                    underlined ? 'underline' : 
+                    strikethrough ? 'line-through' : 'none'
+  }
+  
+  return <span style={style}>{text}</span>
 }
 
 export default function ChatPage({ username }: ChatPageProps): React.ReactElement {
@@ -25,10 +47,11 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
   
   const msgInputRef = useRef<HTMLInputElement>(null)
   const socketRef = useRef<ReturnType<typeof io> | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // function to convert incoming json to actual formatted text on the web
-  const parseMinecraftMessage = (jsonMsg: any): string => {
-    const parseLegacyColorCodes = (text: string): string => {
+  // function to convert incoming json to structured message parts
+  const parseMinecraftMessage = (jsonMsg: any): MessagePart[] => {
+    const parseLegacyColorCodes = (text: string): MessagePart[] => {
       const legacyColorMap: { [key: string]: string } = {
         '0': '#000000', // black
         '1': '#0000AA', // dark_blue
@@ -49,28 +72,34 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
       }
 
       const parts = text.split('§')
-      if (parts.length === 1) return text
+      if (parts.length === 1) return [{ text }]
 
-      let result = parts[0]
+      const result: MessagePart[] = []
+      
+      if (parts[0]) {
+        result.push({ text: parts[0] })
+      }
       
       for (let i = 1; i < parts.length; i++) {
         const code = parts[i][0]?.toLowerCase()
         const content = parts[i].substring(1)
         
+        if (!content) continue
+        
         if (legacyColorMap[code]) {
-          result += `<span style="color: ${legacyColorMap[code]}">${content}</span>`
+          result.push({ text: content, color: legacyColorMap[code] })
         } else if (code === 'l') { // bold
-          result += `<span style="font-weight: bold">${content}</span>`
+          result.push({ text: content, bold: true })
         } else if (code === 'o') { // italic
-          result += `<span style="font-style: italic">${content}</span>`
+          result.push({ text: content, italic: true })
         } else if (code === 'n') { // underline
-          result += `<span style="text-decoration: underline">${content}</span>`
+          result.push({ text: content, underlined: true })
         } else if (code === 'm') { // strikethrough
-          result += `<span style="text-decoration: line-through">${content}</span>`
+          result.push({ text: content, strikethrough: true })
         } else if (code === 'r') { // reset
-          result += content
+          result.push({ text: content })
         } else {
-          result += '§' + parts[i] // Unknown code, keep as-is
+          result.push({ text: '§' + parts[i] }) // Unknown code, keep as-is
         }
       }
       
@@ -100,43 +129,43 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
       'white': '#FFFFFF'
     }
 
-    const formatPart = (part: any): string => {
+    const formatPart = (part: any): MessagePart[] => {
       if (part.extra && Array.isArray(part.extra)) {
-        return part.extra.map(formatPart).join('')
+        return part.extra.flatMap(formatPart)
       }
       
       let text = part.text || ''
-      if (!text) return ''
+      if (!text) return []
+      
       if (text.includes('§')) {
-        text = parseLegacyColorCodes(text)
+        return parseLegacyColorCodes(text)
       }
       
       const color = colorMap[part.color] || part.color || '#FFFFFF'
-      const bold = part.bold ? 'font-weight: bold;' : ''
-      const italic = part.italic ? 'font-style: italic;' : ''
-      const underlined = part.underlined ? 'text-decoration: underline;' : ''
-      const strikethrough = part.strikethrough ? 'text-decoration: line-through;' : ''
       
-      const style = `color: ${color}; ${bold} ${italic} ${underlined} ${strikethrough}`
-      if (text.includes('<span')) {
-        return `<span style="${style}">${text}</span>`
-      }
-      return `<span style="${style}">${text}</span>`
+      return [{
+        text,
+        color,
+        bold: part.bold,
+        italic: part.italic,
+        underlined: part.underlined,
+        strikethrough: part.strikethrough
+      }]
     }
 
-    let result = ''
+    let result: MessagePart[] = []
 
  
     if (jsonMsg.json?.extra) {
-      result = jsonMsg.json.extra.map(formatPart).join('')
+      result = jsonMsg.json.extra.flatMap(formatPart)
     }
     else if (jsonMsg.extra) {
-      result = jsonMsg.extra.map(formatPart).join('')
+      result = jsonMsg.extra.flatMap(formatPart)
     }
     else if (jsonMsg.text) {
       result = formatPart(jsonMsg)
     }
-    return result || ''
+    return result
   }
 
   useEffect(() => {
@@ -147,7 +176,7 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
       socket.on("bot-message", (data: BotMessage) => {
         const parsedMessage = parseMinecraftMessage(data.message)
         
-        if (parsedMessage.trim()) {
+        if (parsedMessage.length > 0) {
           setBotInstances(prev => 
             prev.map(bot => 
               bot.id === data.botId 
@@ -208,9 +237,12 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
 
   const activeBot = botInstances.find(bot => bot.id === activeBotId)
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [activeBot?.messages])
+
   return (
     <div className="flex h-screen max-w-6xl mx-auto">
-      {/* Sidebar */}
       <div className="w-56 border-r border-gray-600 p-3 bg-gray-900">
         <h3 className="text-xl font-semibold mb-4 text-gray-200">Servers</h3>
         {botInstances.map(bot => (
@@ -246,7 +278,6 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
         </form>
       </div>
 
-      {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
         {activeBot ? (
           <>
@@ -255,14 +286,18 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
                 Chat - {username} @ {activeBot.host}
               </h2>
             </div>
-            <ul className="flex-1 overflow-y-auto p-4 bg-gray-700 rounded-lg m-4 min-h-[400px] max-h-[500px] list-none">
-              {activeBot.messages.map((msg: string, index: number) => (
+            <ul className="flex-1 overflow-y-auto p-4 bg-gray-700 rounded-lg m-4 list-none minimal-scrollbar">
+              {activeBot.messages.map((msgParts: MessagePart[], index: number) => (
                 <li 
                   key={index} 
-                  dangerouslySetInnerHTML={{ __html: msg }}
                   className="mb-2 p-2 bg-gray-600 rounded"
-                />
+                >
+                  {msgParts.map((part, partIndex) => (
+                    <MessagePart key={partIndex} {...part} />
+                  ))}
+                </li>
               ))}
+              <div ref={messagesEndRef} />
             </ul>
             <form onSubmit={sendMessage} className="flex gap-1 mt-auto p-4">
               <input 
