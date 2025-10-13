@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 
 interface SignInPageProps {
   onSignIn: (username: string) => void
@@ -14,9 +14,26 @@ interface AuthData {
 
 export default function SignInPage({ onSignIn }: SignInPageProps): React.ReactElement {
   const [username, setUsername] = useState<string>('')
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [loadingDots, setLoadingDots] = useState<string>('.')
+
+  useEffect(() => {
+    if (!isLoading) return
+
+    const interval = setInterval(() => {
+      setLoadingDots((prev) => {
+        if (prev === '.') return '..'
+        if (prev === '..') return '...'
+        return '.'
+      })
+    }, 500)
+
+    return () => clearInterval(interval)
+  }, [isLoading])
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setIsLoading(true)
     try {
       const response = await fetch('http://localhost:3500/api/authenticate', {
         method: 'POST',
@@ -35,6 +52,7 @@ export default function SignInPage({ onSignIn }: SignInPageProps): React.ReactEl
       onSignIn(username);
       } catch (err) {
         console.error('Error:', err);
+        setIsLoading(false)
       }
   }
 
@@ -48,13 +66,15 @@ export default function SignInPage({ onSignIn }: SignInPageProps): React.ReactEl
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           autoFocus
-          className="p-4 text-xl bg-gray-700 text-white rounded-lg border-none placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={isLoading}
+          className="p-4 text-xl bg-gray-700 text-white rounded-lg border-none placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <button 
           type="submit"
-          className="p-4 text-xl bg-blue-600 text-white rounded-lg border-none cursor-pointer hover:bg-blue-700 transition-colors"
+          disabled={isLoading}
+          className="p-4 text-xl bg-blue-600 text-white rounded-lg border-none cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Sign In
+          {isLoading ? loadingDots : 'Sign In'}
         </button>
       </form>
     </div>

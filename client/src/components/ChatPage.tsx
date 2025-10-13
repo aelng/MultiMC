@@ -229,7 +229,7 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
   const sendMessage = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault()
     if (message.trim() && socketRef.current && activeBotId) {
-      socketRef.current.emit('message', {msg: `${username}: ${message}`, id: activeBotId})
+      socketRef.current.emit('message', {msg: `${message}`, id: activeBotId})
       setMessage("")
     }
     msgInputRef.current?.focus()
