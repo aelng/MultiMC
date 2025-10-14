@@ -59,7 +59,8 @@ export default function SignInPage({ onSignIn }: SignInPageProps): React.ReactEl
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
-      <h1 className="text-5xl md:text-6xl font-bold text-white mb-8">Chat App</h1>
+      <h1 className="text-5xl md:text-6xl font-bold text-white mb-8">MultiMC</h1>
+      <h1 className="text-md md:text-md text-white mb-8">An easy to use multi-instance minecraft web client</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md px-4">
         <input 
           type="text" 
