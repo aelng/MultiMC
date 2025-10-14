@@ -10,6 +10,15 @@
   font-style: normal;
 }
 
+/* Background Image */
+body {
+  background-image: url('./assets/Overworld_background.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
 /* Minimal scrollbar styling */
 .minimal-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -32,4 +41,160 @@
 .minimal-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* /////////////////////////////////////////////////////////////////// */
+/* Minecraft Style Menu */
+/* /////////////////////////////////////////////////////////////////// */
+.mc-menu {
+  --btn-size: 30pt;
+  display: grid;
+  grid-template-columns: var(--btn-size) calc(var(--btn-size) * 10) var(--btn-size);
+  grid-template-rows: repeat(3, var(--btn-size)) 16px var(--btn-size);
+  grid-template-areas:
+    '.     first   .'
+    '.     second  .'
+    '.     third   .'
+    '.     .       .'
+    'lang  fourth  .';
+  grid-gap: 8px;
+}
+
+.mc-menu .mc-button:nth-child(1) { 
+  grid-area: first;
+}
+
+.mc-menu .mc-button:nth-child(2) { 
+  grid-area: second;
+}
+
+.mc-menu .mc-button:nth-child(3) { 
+  grid-area: third;
+}
+
+.mc-menu .double {
+  grid-area: fourth;
+}
+
+.mc-menu .double .mc-button:nth-child(1) { 
+  grid-area: left;
+}
+
+.mc-menu .double .mc-button:nth-child(2) { 
+  grid-area: right;
+}
+
+.mc-menu .mc-button:nth-child(5) { 
+  grid-area: lang;
+}
+
+/* Double button layout */
+.mc-menu .double {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+  grid-template-areas: 'left right';
+  grid-gap: 8px;
+}
+
+/* Minecraft Style Button */
+.mc-button {
+  height: var(--btn-size, 30pt);
+  width: calc(var(--btn-size, 30pt) * 10);
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  user-select: none;
+
+  background: #999 url('https://i.ibb.co/rb2TWXL/bgbtn.png') center / cover;
+  image-rendering: pixelated;
+  border: 2px solid #000;
+}
+
+/* Mouse over */
+.mc-button:hover .title {
+  background-color: rgba(150, 150, 150, 0.45);
+  text-shadow: 2px 2px rgba(0, 0, 0, 0.8);
+  color: #FFFFFF;
+}
+
+.mc-button:active .title {
+  box-shadow: inset -2px -4px rgba(0, 0, 0, 0.27), inset 2px 2px rgba(255, 255, 255, 0.31);
+}
+
+/* Button title */
+.mc-button .title {
+  width: 100%;
+  height: 100%;
+  padding-bottom: 0.3em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  color: #DDD;
+  text-shadow: 2px 2px rgba(0, 0, 0, 0.63);
+  box-shadow: inset -2px -4px rgba(0, 0, 0, 0.4), inset 2px 2px rgba(255, 255, 255, 0.44);
+}
+
+/* Button modifiers */
+.mc-button.full {
+  width: 100%;
+  height: 100%;
+}
+
+.mc-button.lang img {
+  width: 26px;
+  height: 26px;
+}
+
+.mc-button.lang .title {
+  padding-bottom: 0;
+}
+
+/* Minecraft Chat Feed */
+.mc-chat-feed {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 3px solid #000;
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.8);
+  image-rendering: pixelated;
+}
+
+/* Minecraft Sidebar */
+.mc-sidebar {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 3px solid #000;
+  box-shadow: 
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.8);
+  image-rendering: pixelated;
+}
+
+/* Minecraft Style Input */
+.mc-input {
+  background: #000 url('https://i.ibb.co/rb2TWXL/bgbtn.png') center / cover;
+  image-rendering: pixelated;
+  border: 2px solid #000;
+  padding: 10px 12px;
+  color: #FFF;
+  
+  box-shadow: inset -2px -2px rgba(255, 255, 255, 0.25), inset 2px 2px rgba(0, 0, 0, 0.5);
+}
+
+.mc-input::placeholder {
+  color: #AAA;
+}
+
+.mc-input:focus {
+  outline: none;
+  box-shadow: inset -2px -2px rgba(255, 255, 255, 0.35), inset 2px 2px rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.mc-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

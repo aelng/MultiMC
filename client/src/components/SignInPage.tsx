@@ -1,4 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react'
+import { playButtonClick } from '../utils/sounds'
 
 interface SignInPageProps {
   onSignIn: (username: string) => void
@@ -58,7 +59,7 @@ export default function SignInPage({ onSignIn }: SignInPageProps): React.ReactEl
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
-      <h1 className="text-5xl md:text-6xl font-bold text-blue-500 mb-8">Chat App</h1>
+      <h1 className="text-5xl md:text-6xl font-bold text-white mb-8">Chat App</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-md px-4">
         <input 
           type="text" 
@@ -67,14 +68,18 @@ export default function SignInPage({ onSignIn }: SignInPageProps): React.ReactEl
           onChange={(e) => setUsername(e.target.value)}
           autoFocus
           disabled={isLoading}
-          className="p-4 text-xl bg-gray-700 text-white rounded-lg border-none placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mc-input text-xl disabled:cursor-not-allowed"
         />
         <button 
           type="submit"
           disabled={isLoading}
-          className="p-4 text-xl bg-blue-600 text-white rounded-lg border-none cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={playButtonClick}
+          className="mc-button disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ width: '100%', height: '50px' }}
         >
-          {isLoading ? loadingDots : 'Sign In'}
+          <div className="title text-xl">
+            {isLoading ? loadingDots : 'Sign In'}
+          </div>
         </button>
       </form>
     </div>

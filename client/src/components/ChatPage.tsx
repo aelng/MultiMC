@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, FormEvent } from 'react'
 import io from 'socket.io-client'
+import { playButtonClick } from '../utils/sounds'
 
 interface ChatPageProps {
   username: string
@@ -242,21 +243,27 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
   }, [activeBot?.messages])
 
   return (
-    <div className="flex h-screen max-w-6xl mx-auto">
-      <div className="w-56 border-r border-gray-600 p-3 bg-gray-900">
-        <h3 className="text-xl font-semibold mb-4 text-gray-200">Servers</h3>
+    <>
+      <div className="absolute top-4 left-4 z-10">
+        <p className="text-white text-lg">Signed in as: <span className="font-semibold">{username}</span></p>
+      </div>
+      <div className="flex h-screen max-w-6xl mx-auto p-4 gap-4 min-h-0">
+        <div className="w-56 p-3 mc-sidebar flex-shrink-0">
+        <h3 className="text-xl font-semibold mb-4 text-white">Servers</h3>
         {botInstances.map(bot => (
-          <div
+          <button
             key={bot.id}
-            onClick={() => setActiveBotId(bot.id)}
-            className={`p-3 my-2 cursor-pointer rounded-lg break-words transition-colors ${
-              activeBotId === bot.id 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
-            }`}
+            onClick={() => {
+              playButtonClick()
+              setActiveBotId(bot.id)
+            }}
+            className={`mc-button my-2 ${activeBotId === bot.id ? 'ring-2 ring-white' : ''}`}
+            style={{ width: '100%', height: 'auto', minHeight: '40px' }}
           >
-            {bot.host}
-          </div>
+            <div className="title break-words text-sm px-2">
+              {bot.host}
+            </div>
+          </button>
         ))}
         
         <form onSubmit={addServer} className="mt-4">
@@ -266,31 +273,32 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
             value={newServerIp}
             onChange={(e) => setNewServerIp(e.target.value)}
             disabled={isAddingServer}
-            className="w-full p-2 bg-gray-700 text-white rounded-lg border-none placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="mc-input w-full"
           />
           <button 
             type="submit" 
             disabled={isAddingServer}
-            className="mt-2 w-full p-2 bg-blue-600 text-white rounded-lg border-none cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={playButtonClick}
+            className="mt-2 mc-button full disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isAddingServer ? '...' : '+'}
+            <div className="title">{isAddingServer ? '...' : 'Add Server'}</div>
           </button>
         </form>
       </div>
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {activeBot ? (
           <>
-            <div className="text-center p-4 border-b-2 border-gray-600">
-              <h2 className="text-2xl font-semibold text-blue-500">
-                Chat - {username} @ {activeBot.host}
+            <div className="text-center p-4 flex-shrink-0">
+              <h2 className="text-2xl font-semibold text-white">
+                IP: {activeBot.host}
               </h2>
             </div>
-            <ul className="flex-1 overflow-y-auto p-4 bg-gray-700 rounded-lg m-4 list-none minimal-scrollbar">
+            <ul className="flex-1 overflow-y-auto p-4 mc-chat-feed mb-4 list-none minimal-scrollbar min-h-0">
               {activeBot.messages.map((msgParts: MessagePart[], index: number) => (
                 <li 
                   key={index} 
-                  className="mb-2 p-2 bg-gray-600 rounded"
+                  className="mb-1 leading-tight"
                 >
                   {msgParts.map((part, partIndex) => (
                     <MessagePart key={partIndex} {...part} />
@@ -299,29 +307,31 @@ export default function ChatPage({ username }: ChatPageProps): React.ReactElemen
               ))}
               <div ref={messagesEndRef} />
             </ul>
-            <form onSubmit={sendMessage} className="flex gap-1 mt-auto p-4">
+            <form onSubmit={sendMessage} className="flex gap-4 mt-auto p-4">
               <input 
                 ref={msgInputRef}
                 type="text" 
                 placeholder="Your message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="flex-1 p-3 bg-gray-700 text-white rounded-lg border-none placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mc-input flex-1"
               />
               <button 
                 type="submit"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg border-none cursor-pointer hover:bg-blue-700 transition-colors"
+                className="mc-button"
+                style={{ width: 'auto', minWidth: '150px' }}
               >
-                Send
+                <div className="title">Send</div>
               </button>
             </form>
           </>
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-400 text-xl">Add a server to start chatting</p>
+            <p className="text-neutral-400 text-xl">Add a server to start chatting</p>
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   )
 }
